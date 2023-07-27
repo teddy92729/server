@@ -1,6 +1,5 @@
-import ytdlp  from "youtube-dl-exec";
+import ytdl  from "youtube-dl-exec";
 import {fileURLToPath} from "url";
-const ytdl=ytdlp.create(fileURLToPath(new URL("./yt-dlp", import.meta.url)));
 
 export async function GET(req,res,url){
     let videoID=url.searchParams.get("v");
@@ -9,7 +8,7 @@ export async function GET(req,res,url){
                 let video=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
                     output: "-",
                     format: "bv[height<=1100]+ba/b",
-                    externalDownloader: fileURLToPath(new URL("./ffmpeg", import.meta.url)),
+                    externalDownloader: "ffmpeg"
                     postprocessorArgs: "Merger+ffmpeg_i0:'-movflags +faststart -maxrate 5M -bufsize 10M',Merger+ffmpeg_o:'-movflags +faststart'",
                 });
                 
