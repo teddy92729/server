@@ -8,7 +8,7 @@ export async function GET(req,res,url){
                 let video=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
                     output: "-",
                     format: "bv[height<=1100]+ba/b",
-                    externalDownloader: "ffmpeg"
+                    externalDownloader: "ffmpeg",
                     postprocessorArgs: "Merger+ffmpeg_i0:'-movflags +faststart -maxrate 5M -bufsize 10M',Merger+ffmpeg_o:'-movflags +faststart'",
                 });
                 
