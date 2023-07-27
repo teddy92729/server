@@ -1,0 +1,16 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "pm2 start index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mime": "^3.0.0",
+    "youtube-dl-exec": "^2.4.6"
+  }
+}
