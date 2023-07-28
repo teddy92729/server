@@ -83,3 +83,8 @@ export async function GET(req,res,url){
         res.end();
     }
 }
+
+export async function OPTIONS(req,res,url){
+    res.writeHead(200);
+    res.end();
+}
