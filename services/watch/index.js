@@ -5,25 +5,76 @@ const ytdl=(os.platform()==="linux")?ytdlp:ytdlp.create(fileURLToPath(new URL(".
 
 export async function GET(req,res,url){
     let videoID=url.searchParams.get("v");
-    let time=url.searchParams.get("t");
+    let type=url.searchParams.get("type");
     if(req.headers.accept==="*/*"){
-            let video=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`+((time)?`t=${time}`:""),{
-                output: "-",
-                format: "bv[height<=1100]+ba/b",
-                externalDownloader: (os.platform()==="linux")?"ffmpeg":fileURLToPath(new URL("./ffmpeg", import.meta.url)),
-                postprocessorArgs: "Merger+ffmpeg_i0:'-movflags +faststart -maxrate 5M -bufsize 10M',Merger+ffmpeg_o:'-movflags +faststart'",
-            });
-            
-            res.on("close",()=>{video.kill("SIGINT");});
-            
-            res.writeHead(200, {
-                "Content-Type": "video/webm",
-            });
-            video.stdout.pipe(res);    
+            if(type!=="a"){
+                let video=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
+                    output: "-",
+                    format: "bv[height<=1100]",
+                    externalDownloader: (os.platform()==="linux")?"aria2c":fileURLToPath(new URL("./aria2c", import.meta.url)),
+                    externalDownloaderArgs: "-j 3 -x 9 -k 1M --referer *",
+                });
+                res.on("close",()=>{video.kill("SIGINT");});
+                res.writeHead(200, {
+                    "Content-Type": "video/webm",
+                    "Connection": "close",
+                });
+                video.stdout.pipe(res);                    
+            }else{
+                let audio=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
+                    output: "-",
+                    format: "ba",
+                    externalDownloader: (os.platform()==="linux")?"aria2c":fileURLToPath(new URL("./aria2c", import.meta.url)),
+                    externalDownloaderArgs: "-j 3 -x 9 -k 1M --referer *",
+                });
+                res.on("close",()=>{audio.kill("SIGINT");});
+                res.writeHead(200, {
+                    "Content-Type": "audio/webm",
+                    "Connection": "close",
+                });
+                audio.stdout.pipe(res);
+            }
+    }else if(videoID&&!type){
+        res.writeHead(200,{"Content-Type":"text/html"});
+        res.end(`
+            <html>
+                <head>
+                    <meta name="viewport" content="width=device-width">
+                </head>
+                <body bgcolor="black">
+                    <video id="playback_v" name="media" style="display: none;" preload="metadata">
+                        <source src="${(new URL(`/watch?v=${videoID}&type=v`,url.href)).href}" type="video/webm">
+                    </video>
+                    <video id="playback_a" name="media" style="display: none;" preload="metadata">
+                        <source src="${(new URL(`/watch?v=${videoID}&type=a`,url.href)).href}" type="video/webm">
+                    </video>
+                    <script type="text/javascript">
+                        let video=document.querySelector("#playback_v");
+                        let audio=document.querySelector("#playback_a");
+                        function readyState(videoElement){
+                            return new Promise((r)=>{
+                                const video=videoElement;
+                                if(video.readyState===4)
+                                  r(video);
+                                else
+                                  video.addEventListener("loadedmetadata",()=>{r(video);});
+                              });
+                        }
+                        (async function(){
+                            await readyState(video);
+                            await readyState(audio);
+                            video.play();
+                            audio.play();
+                        })();
+                    </script>
+                    <script type="text/javascript" src="https://teddy92729.github.io/elementCreated.js"></script>
+                    <script type="text/javascript" src="https://pixijs.download/release/pixi.js"></script>
+                    <script type="text/javascript" src="https://teddy92729.github.io/anime4k_Deblur_DoG%20-%20test.js"></script>
+                </body>
+            </html>
+        `);
     }else{
-        res.writeHead(200, {
-            "Content-Type": "video/webm",
-        });
+        res.writeHead(200,{"Content-Type":"video/webm"});
         res.end();
     }
 }
