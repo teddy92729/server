@@ -12,7 +12,7 @@ export function GET(req,res) {
             <meta property="og:image" content="https://godlike-ahoge.ddns.net/0000128085.JPG" />
         </head>
         <body bgcolor="black">
-            <iframe width="1561" height="695" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" title="【我推的孩子】 [12] 線上看 - 巴哈姆特動畫瘋" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe width="1561" height="695" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" title="【我推的孩子】 [12] 線上看 - 巴哈姆特動畫瘋" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" sandbox="allow-scripts" allowfullscreen></iframe>
         </body>
     </html>
     `);
