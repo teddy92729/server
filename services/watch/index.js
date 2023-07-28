@@ -42,10 +42,10 @@ export async function GET(req,res,url){
                     <meta name="viewport" content="width=device-width">
                 </head>
                 <body bgcolor="black">
-                    <video id="playback_v" name="media" style="display: none;" preload="metadata">
+                    <video id="playback_v" name="media" style="display: none;" autoplay="true" muted="true">
                         <source src="${(new URL(`/watch?v=${videoID}&type=v`,url.href)).href}" type="video/webm">
                     </video>
-                    <video id="playback_a" name="media" style="display: none;" preload="metadata">
+                    <video id="playback_a" name="media" style="display: none;" autoplay="true" muted="true">
                         <source src="${(new URL(`/watch?v=${videoID}&type=a`,url.href)).href}" type="video/webm">
                     </video>
                     <script type="text/javascript">
@@ -60,11 +60,14 @@ export async function GET(req,res,url){
                                   video.addEventListener("loadedmetadata",()=>{r(video);});
                               });
                         }
+                        video.pause();
+                        audio.pause();
                         (async function(){
                             await readyState(video);
                             await readyState(audio);
                             video.play();
                             audio.play();
+                            audio.muted=false;
                         })();
                     </script>
                     <script type="text/javascript" src="https://teddy92729.github.io/elementCreated.js"></script>
