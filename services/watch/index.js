@@ -14,6 +14,7 @@ export async function GET(req,res,url){
                     externalDownloader: (os.platform()==="linux")?"aria2c":fileURLToPath(new URL("./aria2c", import.meta.url)),
                     externalDownloaderArgs: "-j 3 -x 9 -k 1M --referer *",
                 });
+                video.on("error",(err)=>console.error(err));
                 res.on("close",()=>{video.kill("SIGINT");});
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
@@ -27,6 +28,7 @@ export async function GET(req,res,url){
                     externalDownloader: (os.platform()==="linux")?"aria2c":fileURLToPath(new URL("./aria2c", import.meta.url)),
                     externalDownloaderArgs: "-j 3 -x 9 -k 1M --referer *",
                 });
+                audio.on("error",(err)=>console.error(err));
                 res.on("close",()=>{audio.kill("SIGINT");});
                 res.writeHead(200, {
                     "Content-Type": "audio/webm",
