@@ -6,27 +6,24 @@ const http_port=5001;
 
 const server=http.createServer(async function(req,res){
     let url=new URL(req.url,`http://localhost:${http_port}`);
-    console.log(url);
-    let forceRes=true;
+    // console.log(url);
+    let checkRes=true;
     try{
         const service = await import(`./services${url.pathname}/index.js`);
         console.log(req.url+" OK(s)");
         try{
             await service[req.method](req,res,url);
-            forceRes=false;
+            checkRes=false;
         }catch(err){
             console.error(err);
         }
     }catch(err){
         try{
-            // console.error(err);
-            // if(url.pathname.match(/index.js\/*$/i))throw new Error("index.js is not allow");
-            await fs.access(`./files${url.pathname}`,fs.constants.R_OK);
-            let {size}=await fs.stat(`./files${url.pathname}`);
-            let type=mime.getType(`./files${url.pathname}`);
+            let path=decodeURI(url.pathname);
+            let {size}=await fs.stat(`./files${path}`);
+            let type=mime.getType(`./files${path}`);
             console.log(req.url+" OK(f)");
             try {
-                forceRes=false;
                 if (req.headers.range) {
                     let [start,end] = req.headers.range.replace(/bytes=/, "").split("-");
                     start = parseInt(start, 10);
@@ -38,12 +35,13 @@ const server=http.createServer(async function(req,res){
                         "Accept-Ranges": "bytes", "Content-Length": chunksize,
                         ...ctype
                     });
-                    createReadStream(`./files${url.pathname}`,{start:start,end:end}).pipe(res);
-                 }else{
+                    createReadStream(`./files${path}`,{start:start,end:end}).pipe(res);
+                }else{
                     res.writeHead(200);
-                    createReadStream(`./files${url.pathname}`).pipe(res);                    
+                    createReadStream(`./files${path}`).pipe(res);                    
                 }
-            } catch (err) {
+                checkRes=false;
+            }catch(err){
                 console.error(err);
             }
         }catch(err){
@@ -53,7 +51,7 @@ const server=http.createServer(async function(req,res){
             res.end("404 Not Found");
         }
     }finally{
-        if(forceRes&&!res.writableEnded){
+        if(checkRes&&!res.writableEnded){
             res.writeHead(500);
             res.end("500 Internal Server Error");
             console.log("500 Internal Server Error @"+url.pathname);
