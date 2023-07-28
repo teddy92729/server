@@ -25,8 +25,8 @@ export async function GET(req,res,url){
                 let audio=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
                     output: "-",
                     format: "ba",
-                    externalDownloader: (os.platform()==="linux")?"aria2c":fileURLToPath(new URL("./aria2c", import.meta.url)),
-                    externalDownloaderArgs: "-j 3 -x 9 -k 1M --referer *",
+                    externalDownloader: (os.platform()==="linux")?"ffmpeg":fileURLToPath(new URL("./ffmpeg", import.meta.url)),
+                    postprocessorArgs: "Merger+ffmpeg_i0:'-movflags +faststart -maxrate 5M -bufsize 10M',Merger+ffmpeg_o:'-movflags +faststart'",
                 });
                 audio.on("error",(err)=>console.error(err));
                 res.on("close",()=>{audio.kill("SIGINT");});
