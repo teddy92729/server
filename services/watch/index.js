@@ -54,15 +54,17 @@ export async function GET(req, res, url) {
                     <meta name="viewport" content="width=device-width">
                 </head>
                 <body bgcolor="black">
-                    <video id="playback_v" name="media" style="display: none;" preload="metadata">
+                    <video id="playback_v" name="media" style="display: none;" autoplay="true" muted="true">
                         <source src="./watch?v=${videoID}&type=v" type="video/webm">
                     </video>
-                    <video id="playback_a" name="media" style="display: none;" preload="metadata">
+                    <video id="playback_a" name="media" style="display: none;" autoplay="true" muted="true">
                         <source src="./watch?v=${videoID}&type=a" type="video/webm">
                     </video>
                     <script type="text/javascript">
                         let video=document.querySelector("#playback_v");
                         let audio=document.querySelector("#playback_a");
+                        video.pause();
+                        audio.pause();
                         function readyState(videoElement){
                             return new Promise((r)=>{
                                 const video=videoElement;
