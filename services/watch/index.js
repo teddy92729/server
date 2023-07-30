@@ -63,8 +63,8 @@ export async function GET(req, res, url) {
                         let video=document.querySelector("#playback_v");
                         let audio=document.querySelector("#playback_a");
                         
-                        video.src="./watch?v=${videoID}&type=v"
-                        audio.src="./watch?v=${videoID}&type=a"
+                        video.src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=v"
+                        audio.src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=a"
 
                         let videoReady=new Promise((r)=>{
                             video.addEventListener("canplaythrough",()=>r());
