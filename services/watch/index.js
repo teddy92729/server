@@ -22,6 +22,7 @@ export async function GET(req, res, url) {
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
                     "Connection": "close",
+                    "Cache-Control": "no-store"
                 });
                 video.stdout.pipe(res);
                 break;
@@ -38,6 +39,7 @@ export async function GET(req, res, url) {
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
                     "Connection": "close",
+                    "Cache-Control": "no-store"
                 });
                 video.stdout.pipe(res);
                 break;
