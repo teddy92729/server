@@ -1,54 +1,64 @@
-import ytdlp  from "youtube-dl-exec";
-import {fileURLToPath} from "url";
-import os from "os";
-const ytdl=(os.platform()==="linux")?ytdlp:ytdlp.create(fileURLToPath(new URL("./yt-dlp", import.meta.url)));
+import { fileURLToPath } from "url";
+import { spawn } from "child_process";
 
-export async function GET(req,res,url){
-    let videoID=url.searchParams.get("v");
-    let type=url.searchParams.get("type");
-    if(req.headers.accept==="*/*"){
-            if(type!=="a"){
-                let video=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
-                    output: "-",
-                    format: "bv[height<=1100]",
-                    externalDownloader: (os.platform()==="linux")?"aria2c":fileURLToPath(new URL("./aria2c", import.meta.url)),
-                    externalDownloaderArgs: "-j 3 -x 9 -k 1M --referer *",
-                });
-                video.on("error",(err)=>console.error(err));
-                res.on("close",()=>{video.kill("SIGINT");});
+const __dirname = fileURLToPath(new URL("./", import.meta.url));
+
+export async function GET(req, res, url) {
+    let videoID = url.searchParams.get("v");
+    let type = url.searchParams.get("type");
+
+    if (req.headers.accept === "*/*") {
+        switch (type) {
+            case "v": {
+                let video = spawn("yt-dlp", [
+                    "--config-locations", "yt-dlp.v.cfg",
+                    "-o", "-",
+                    `https://www.youtube.com/watch?v=${videoID}`
+                ], { cwd: __dirname },);
+
+                res.on("finish", () => { video.kill("SIGINT"); });
+                res.on("close", () => { video.kill("SIGINT"); });
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
                     "Connection": "close",
                 });
-                video.stdout.pipe(res);                    
-            }else{
-                let audio=ytdl.exec(`https://www.youtube.com/watch?v=${videoID}`,{
-                    output: "-",
-                    format: "ba",
-                    externalDownloader: (os.platform()==="linux")?"ffmpeg":fileURLToPath(new URL("./ffmpeg", import.meta.url)),
-                    postprocessorArgs: "Merger+ffmpeg_i0:'-movflags +faststart -maxrate 5M -bufsize 10M',Merger+ffmpeg_o:'-movflags +faststart'",
-                });
-                audio.on("error",(err)=>console.error(err));
-                res.on("close",()=>{audio.kill("SIGINT");});
+                video.stdout.pipe(res);
+                break;
+            }
+            case "a": {
+                let video = spawn("yt-dlp", [
+                    "--config-locations", "yt-dlp.a.cfg",
+                    "-o", "-",
+                    `https://www.youtube.com/watch?v=${videoID}`
+                ], { cwd: __dirname },);
+
+                res.on("finish", () => { video.kill("SIGINT"); });
+                res.on("close", () => { video.kill("SIGINT"); });
                 res.writeHead(200, {
-                    "Content-Type": "audio/webm",
+                    "Content-Type": "video/webm",
                     "Connection": "close",
                 });
-                audio.stdout.pipe(res);
+                video.stdout.pipe(res);
+                break;
             }
-    }else if(videoID&&!type){
-        res.writeHead(200,{"Content-Type":"text/html"});
+            default: {
+                res.end("Unkown Type");
+                break;
+            }
+        }
+    } else if (videoID && !type) {
+        res.writeHead(200, { "Content-Type": "text/html" });
         res.end(`
             <html>
                 <head>
                     <meta name="viewport" content="width=device-width">
                 </head>
                 <body bgcolor="black">
-                    <video id="playback_v" name="media" style="display: none;" autoplay="true" muted="true">
-                        <source src="${(new URL(`/watch?v=${videoID}&type=v`,url.href)).href}" type="video/webm">
+                    <video id="playback_v" name="media" style="display: none;" preload="metadata">
+                        <source src="./watch?v=${videoID}&type=v" type="video/webm">
                     </video>
-                    <video id="playback_a" name="media" style="display: none;" autoplay="true" muted="true">
-                        <source src="${(new URL(`/watch?v=${videoID}&type=a`,url.href)).href}" type="video/webm">
+                    <video id="playback_a" name="media" style="display: none;" preload="metadata">
+                        <source src="./watch?v=${videoID}&type=a" type="video/webm">
                     </video>
                     <script type="text/javascript">
                         let video=document.querySelector("#playback_v");
@@ -62,14 +72,14 @@ export async function GET(req,res,url){
                                   video.addEventListener("loadedmetadata",()=>{r(video);});
                               });
                         }
-                        video.pause();
-                        audio.pause();
                         (async function(){
                             await readyState(video);
                             await readyState(audio);
                             video.play();
                             audio.play();
-                            audio.muted=false;
+                            setInterval(()=>{
+                                console.log(audio.currentTime-video.currentTime);
+                            },5000);
                         })();
                     </script>
                     <script type="text/javascript" src="https://teddy92729.github.io/elementCreated.js"></script>
@@ -78,13 +88,13 @@ export async function GET(req,res,url){
                 </body>
             </html>
         `);
-    }else{
-        res.writeHead(200,{"Content-Type":"video/webm"});
+    } else {
+        res.writeHead(200, { "Content-Type": "video/webm" });
         res.end();
     }
 }
 
-export async function OPTIONS(req,res,url){
+export async function OPTIONS(req, res, url) {
     res.writeHead(200);
     res.end();
 }
