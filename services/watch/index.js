@@ -57,7 +57,7 @@ export async function GET(req, res, url) {
                     <meta name="viewport" content="width=device-width">
                 </head>
                 <body bgcolor="black">
-                    <video id="playback_v" name="media" style="display: none;"></video>
+                    <video id="playback_v" name="media" style="display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); height: unset; width: 100%"></video>
                     <audio id="playback_a" name="media" style="display: none;"> </audio>
                     <script type="text/javascript">
                         let video=document.querySelector("#playback_v");
@@ -86,9 +86,6 @@ export async function GET(req, res, url) {
                         });
                         
                     </script>
-                    <script type="text/javascript" src="https://teddy92729.github.io/elementCreated.js"></script>
-                    <script type="text/javascript" src="https://pixijs.download/release/pixi.js"></script>
-                    <script type="text/javascript" src="https://teddy92729.github.io/anime4k_Deblur_DoG%20-%20test.js"></script>
                 </body>
             </html>
         `);
