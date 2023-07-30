@@ -18,7 +18,6 @@ export async function GET(req, res, url) {
                 ], { cwd: __dirname },);
                 video.on("error", console.error);
 
-                res.on("finish", () => { video.kill("SIGINT"); });
                 res.on("close", () => { video.kill("SIGINT"); });
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
@@ -35,7 +34,6 @@ export async function GET(req, res, url) {
                 ], { cwd: __dirname },);
                 video.on("error", console.error);
 
-                res.on("finish", () => { video.kill("SIGINT"); });
                 res.on("close", () => { video.kill("SIGINT"); });
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
