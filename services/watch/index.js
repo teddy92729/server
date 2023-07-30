@@ -1,5 +1,6 @@
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
+import { error } from "console";
 
 const __dirname = fileURLToPath(new URL("./", import.meta.url));
 
@@ -15,6 +16,7 @@ export async function GET(req, res, url) {
                     "-o", "-",
                     `https://www.youtube.com/watch?v=${videoID}`
                 ], { cwd: __dirname },);
+                video.on("error", console.error);
 
                 res.on("finish", () => { video.kill("SIGINT"); });
                 res.on("close", () => { video.kill("SIGINT"); });
@@ -31,6 +33,7 @@ export async function GET(req, res, url) {
                     "-o", "-",
                     `https://www.youtube.com/watch?v=${videoID}`
                 ], { cwd: __dirname },);
+                video.on("error", console.error);
 
                 res.on("finish", () => { video.kill("SIGINT"); });
                 res.on("close", () => { video.kill("SIGINT"); });
@@ -54,35 +57,34 @@ export async function GET(req, res, url) {
                     <meta name="viewport" content="width=device-width">
                 </head>
                 <body bgcolor="black">
-                    <video id="playback_v" name="media" style="display: none;" autoplay="true" muted="true">
-                        <source src="./watch?v=${videoID}&type=v" type="video/webm">
-                    </video>
-                    <video id="playback_a" name="media" style="display: none;" autoplay="true" muted="true">
-                        <source src="./watch?v=${videoID}&type=a" type="video/webm">
-                    </video>
+                    <video id="playback_v" name="media" style="display: none;"></video>
+                    <audio id="playback_a" name="media" style="display: none;"> </audio>
                     <script type="text/javascript">
                         let video=document.querySelector("#playback_v");
                         let audio=document.querySelector("#playback_a");
-                        video.pause();
-                        audio.pause();
-                        function readyState(videoElement){
-                            return new Promise((r)=>{
-                                const video=videoElement;
-                                if(video.readyState===4)
-                                  r(video);
-                                else
-                                  video.addEventListener("loadedmetadata",()=>{r(video);});
-                              });
-                        }
-                        (async function(){
-                            await readyState(video);
-                            await readyState(audio);
-                            video.play();
+                        
+                        video.src="./watch?v=${videoID}&type=v"
+                        audio.src="./watch?v=${videoID}&type=a"
+
+                        let videoReady=new Promise((r)=>{
+                            video.addEventListener("canplaythrough",()=>r());
+                        });
+                        let audioReady=new Promise((r)=>{
+                            audio.addEventListener("canplaythrough",()=>r());
+                        });
+
+                        Promise.all([videoReady,audioReady]).then(()=>{
+                            video.addEventListener("pause",()=>audio.pause());
+                            video.addEventListener("play",()=>audio.play());
+
                             audio.play();
+                            video.play();
+
                             setInterval(()=>{
                                 console.log(audio.currentTime-video.currentTime);
                             },5000);
-                        })();
+                        });
+                        
                     </script>
                     <script type="text/javascript" src="https://teddy92729.github.io/elementCreated.js"></script>
                     <script type="text/javascript" src="https://pixijs.download/release/pixi.js"></script>
@@ -90,6 +92,7 @@ export async function GET(req, res, url) {
                 </body>
             </html>
         `);
+
     } else {
         res.writeHead(200, { "Content-Type": "video/webm" });
         res.end();
