@@ -1,6 +1,5 @@
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
-import { error } from "console";
 
 const __dirname = fileURLToPath(new URL("./", import.meta.url));
 
@@ -22,7 +21,7 @@ export async function GET(req, res, url) {
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
                     "Connection": "close",
-                    "Cache-Control": "no-store"
+                    "Cache-Control": "private, max-age=21296"
                 });
                 video.stdout.pipe(res);
                 break;
@@ -39,7 +38,7 @@ export async function GET(req, res, url) {
                 res.writeHead(200, {
                     "Content-Type": "video/webm",
                     "Connection": "close",
-                    "Cache-Control": "no-store"
+                    "Cache-Control": "private, max-age=21296"
                 });
                 video.stdout.pipe(res);
                 break;
