@@ -57,15 +57,16 @@ export async function GET(req, res, url) {
                     <meta name="viewport" content="width=device-width">
                 </head>
                 <body bgcolor="black">
-                    <video id="playback_v" name="media" style="display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); height: unset; width: 100%"></video>
-                    <audio id="playback_a" name="media" style="display: none;"> </audio>
+                    <video id="playback_v" name="media" style="display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); height: unset; width: 100%">
+                        <source src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=v" type="video/webm">
+                    </video>
+                    <video id="playback_a" name="media" style="display: none;"> 
+                        <source src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=a" type="video/webm">
+                    </video>
                     <script type="text/javascript">
                         let video=document.querySelector("#playback_v");
                         let audio=document.querySelector("#playback_a");
                         
-                        video.src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=v"
-                        audio.src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=a"
-
                         let videoReady=new Promise((r)=>{
                             video.addEventListener("canplaythrough",()=>r());
                         });
