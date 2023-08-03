@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mime": "^3.0.0",
-    "youtube-dl-exec": "^2.4.6"
+    "mime": "^3.0.0"
   }
 }

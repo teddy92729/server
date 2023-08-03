@@ -9,25 +9,10 @@ export async function GET(req, res, url) {
 
     if (req.headers.accept === "*/*") {
         switch (type) {
-            case "v": {
-                let video = spawn("yt-dlp", [
-                    "--config-locations", "yt-dlp.v.cfg",
-                    "-o", "-",
-                    `https://www.youtube.com/watch?v=${videoID}`
-                ], { cwd: __dirname },);
-                video.on("error", console.error);
-
-                res.on("close", () => { video.kill("SIGINT"); });
-                res.writeHead(200, {
-                    "Content-Type": "video/webm",
-                    "Connection": "close",
-                });
-                video.stdout.pipe(res);
-                break;
-            }
+            case "v":
             case "a": {
                 let video = spawn("yt-dlp", [
-                    "--config-locations", "yt-dlp.a.cfg",
+                    "--config-locations", `yt-dlp.${type}.cfg`,
                     "-o", "-",
                     `https://www.youtube.com/watch?v=${videoID}`
                 ], { cwd: __dirname },);
@@ -55,10 +40,10 @@ export async function GET(req, res, url) {
                 </head>
                 <body bgcolor="black">
                     <video id="playback_v" name="media" style="display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); height: unset; width: 100%">
-                        <source src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=v" type="video/webm">
+                        <source src="watch?v=${videoID}&type=v" type="video/webm">
                     </video>
                     <video id="playback_a" name="media" style="display: none;"> 
-                        <source src="https://godlike-ahoge.ddns.net/watch?v=${videoID}&type=a" type="video/webm">
+                        <source src="watch?v=${videoID}&type=a" type="video/webm">
                     </video>
                     <script type="text/javascript">
                         let video=document.querySelector("#playback_v");
